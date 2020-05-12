@@ -4,9 +4,12 @@ services:
   # mysql server
   #
   mysql-zbx:
+    hostname: mysql-zbx
+    container_name: "${COMPOSE}_mysql-zbx"
     tty:    true
     volumes:
-      - ./env/var/lib/mysql:/var/lib/mysql:rw
+#      - ./env/var/lib/mysql:/var/lib/mysql:rw
+      - ${DATA_PATH}/env/var/lib/mysql:/var/lib/mysql:rw
     environment:
       MYSQL_DATABASE:       ${DB_NAME}
       MYSQL_USER:           ${DB_USER}
@@ -20,6 +23,8 @@ services:
   # java gateway
   #
   java-gateway-zbx:
+    hostname: java-gateway-zbx
+    container_name: "${COMPOSE}_java-gateway-zbx"
     tty:    true
     image:  zabbix/zabbix-java-gateway:${OS}-${VERSION}
 
@@ -27,6 +32,8 @@ services:
   # zabbix server
   #
   zabbix-server:
+    hostname: zabbix-server
+    container_name: "${COMPOSE}_zabbix-server"
     tty:    true
     environment:
       DB_SERVER_HOST:       mysql-zbx
@@ -37,13 +44,16 @@ services:
       ZBX_JAVAGATEWAY:      java-gateway-zbx
       ZBX_DEBUGLEVEL:       ${LOG_LEVEL}
     ports:
-      - "10051:10051"
+      - "${IP}:10051:10051"
+
     image:  zabbix/zabbix-server-mysql:${OS}-${VERSION}
 
   #------------------------------------------------------------------------------
   # nginx
   #
   nginx-zbx:
+    hostname: nginx-zbx
+    container_name: "${COMPOSE}_nginx-zbx"
     tty:    true
     environment:
       ZBX_SERVER_NAME:      ${ZBX_SERVER_NAME}
@@ -54,7 +64,7 @@ services:
       MYSQL_ROOT_PASSWORD:  ${DB_ROOT_PASSWORD}
       PHP_TZ:               ${PHP_TZ}
     ports:
-        - ${HTTP_PORT}:80
-        - ${HTTPS_PORT}:443
-    image:  zabbix/zabbix-web-nginx-mysql:${OS}-${VERSION}
+        - "${IP}:${HTTP_PORT}:8080"
+        - "${IP}:${HTTPS_PORT}:8443"
 
+    image:  zabbix/zabbix-web-nginx-mysql:${OS}-${VERSION}

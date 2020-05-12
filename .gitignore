@@ -1,1 +1,7 @@
-.DS_Store
+# Ignore everything in this directory
+#*
+# Except this file
+#!.gitkeep
+*~
+.env
+
